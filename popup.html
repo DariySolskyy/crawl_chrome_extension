@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 450px;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .status {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 12px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .start { background: #4CAF50; color: white; }
+    .pause { background: #FF9800; color: white; }
+    .stop { background: #f44336; color: white; }
+    .export { background: #2196F3; color: white; }
+    .file-input {
+      margin-bottom: 15px;
+    }
+    .settings {
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+    .setting-row {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    input[type="number"], input[type="text"], select {
+      width: 100%;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+    .progress {
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #4CAF50;
+      transition: width 0.3s ease;
+    }
+    .api-config {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    .config-section {
+      display: none;
+      margin-top: 10px;
+    }
+    .config-section.active {
+      display: block;
+    }
+    .small-input {
+      font-size: 11px;
+    }
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    h2 {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+    }
+    h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+    }
+    .help-text {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Universal Profile Scraper v2</h2>
+  
+  <div class="status" id="status">
+    Status: Ready
+  </div>
+  
+  <div class="progress">
+    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+  </div>
+  
+  <div class="file-input">
+    <label for="profileFile">Load Profile Data (JSON file):</label>
+    <input type="file" id="profileFile" accept=".json,.txt,.csv">
+    <div class="help-text">Supports JSON arrays, CSV files, or text files with one profile per line</div>
+  </div>
+  
+  <div class="controls">
+    <button id="startBtn" class="start">Start</button>
+    <button id="pauseBtn" class="pause">Pause</button>
+    <button id="stopBtn" class="stop">Stop</button>
+    <button id="exportBtn" class="export">Export</button>
+  </div>
+  
+  <div class="api-config">
+    <h3>API Configuration</h3>
+    
+    <div class="setting-row">
+      <label for="apiType">API Type:</label>
+      <select id="apiType">
+        <option value="REST">REST API</option>
+        <option value="GraphQL">GraphQL</option>
+        <option value="CUSTOM">Custom</option>
+      </select>
+    </div>
+    
+    <div class="setting-row">
+      <label for="targetDomain">Target Domain:</label>
+      <select id="targetDomain">
+        <option value="">Select predefined or enter custom</option>
+        <option value="sbcconnect.com">SBC Connect</option>
+        <option value="event.igblive.com">iGB Live Event</option>
+        <option value="custom">Custom Domain</option>
+      </select>
+    </div>
+    
+    <div class="setting-row">
+      <label for="customDomain">Custom Domain (if selected above):</label>
+      <input type="text" id="customDomain" placeholder="example.com" class="small-input">
+    </div>
+    
+    <div class="setting-row">
+      <label for="apiEndpoint">API Endpoint:</label>
+      <input type="text" id="apiEndpoint" class="small-input">
+    </div>
+    
+    <!-- REST API specific settings -->
+    <div id="restConfig" class="config-section">
+      <div class="setting-row">
+        <label for="eventPath">Event Path (for REST):</label>
+        <input type="text" id="eventPath" placeholder="casinobeats-summit-2025" class="small-input">
+      </div>
+    </div>
+    
+    <!-- GraphQL specific settings -->
+    <div id="graphqlConfig" class="config-section">
+      <div class="setting-row">
+        <label for="operationName">Operation Name:</label>
+        <input type="text" id="operationName" placeholder="EventPersonDetailsQuery" class="small-input">
+      </div>
+      
+      <div class="setting-row">
+        <label for="sha256Hash">SHA256 Hash (for persisted queries):</label>
+        <input type="text" id="sha256Hash" class="small-input">
+        <div class="help-text">Extract from browser dev tools network tab</div>
+      </div>
+      
+      <div class="two-column">
+        <div>
+          <label for="eventId">Event ID:</label>
+          <input type="text" id="eventId" class="small-input">
+          <div class="help-text">Usually session-specific</div>
+        </div>
+        <div>
+          <label for="clientVersion">Client Version:</label>
+          <input type="text" id="clientVersion" placeholder="2.309.229" class="small-input">
+        </div>
+      </div>
+      
+      <div class="setting-row">
+        <label for="authToken">Authorization Token:</label>
+        <input type="text" id="authToken" placeholder="Bearer eyJhbGciOiJSUzI1NiI..." class="small-input">
+        <div class="help-text">Copy from browser request headers (session-specific)</div>
+      </div>
+      
+      <div class="setting-row">
+        <label for="sessionCookies">Session Cookies:</label>
+        <input type="text" id="sessionCookies" placeholder="session-id=abc123; auth-token=xyz789" class="small-input">
+        <div class="help-text">Copy relevant cookies from browser (optional)</div>
+      </div>
+      
+      <div class="setting-row">
+        <label for="dynamicParams">Dynamic Parameters (JSON):</label>
+        <input type="text" id="dynamicParams" placeholder='{"skipMeetings": false, "withEvent": true}' class="small-input">
+        <div class="help-text">Additional query variables that may change per session</div>
+      </div>
+    </div>
+    
+    <div class="setting-row">
+      <label for="customHeaders">Custom Headers (JSON format):</label>
+      <input type="text" id="customHeaders" placeholder='{"Authorization": "Bearer token"}' class="small-input">
+      <div class="help-text">Optional: Enter additional headers as JSON object</div>
+    </div>
+    
+    <button id="saveApiConfig" class="start">Save API Config</button>
+  </div>
+  
+  <div class="settings">
+    <h3>General Settings</h3>
+    
+    <div class="setting-row">
+      <label for="delay">Delay between requests (ms):</label>
+      <input type="number" id="delay" value="5000" min="1000" max="30000">
+    </div>
+    
+    <button id="saveSettings" class="start">Save Settings</button>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

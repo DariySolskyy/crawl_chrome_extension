@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Universal Profile Scraper",
+  "version": "2.0",
+  "description": "Universal profile scraper for authenticated sessions - supports REST, GraphQL and custom APIs",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://sbcconnect.com/*",
+    "https://event.igblive.com/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://sbcconnect.com/*",
+        "https://event.igblive.com/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Universal Profile Scraper"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": [
+        "https://sbcconnect.com/*",
+        "https://event.igblive.com/*",
+        "https://*/*"
+      ]
+    }
+  ]
+}
